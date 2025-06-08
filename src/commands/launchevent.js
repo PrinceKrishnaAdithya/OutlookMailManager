@@ -1,4 +1,4 @@
-// At the very top of launchevent.js
+/* // At the very top of launchevent.js
 console.log("Debug: launchevent.js file loaded");
 
 Office.onReady(() => {
@@ -11,7 +11,7 @@ Office.onReady(() => {
     console.log("Debug: Handler registered successfully");
 }).catch((error) => {
     console.error("Debug: Office.js failed:", error);
-});
+}); */
 
 function onMessageSendHandler(event) {
   console.log("DEBUG 1a");
@@ -63,9 +63,7 @@ function onMessageSendHandler(event) {
                   let pending = attachments.length;
 
                   if (pending === 0) {
-                    console.log("DEBUG 2");
-                      console.log(event);
-                    //sendFormData(formData, event);
+                    sendFormData(formData, event);
                   } else {
                     attachments.forEach(att => {
                       item.getAttachmentContentAsync(att.id, function (contentResult) {
@@ -95,17 +93,13 @@ function onMessageSendHandler(event) {
 
                           pending--;
                           if (pending === 0) {
-console.log("DEBUG 2");
-  console.log(event);
-                            //sendFormData(formData, event);
+                            sendFormData(formData, event);
                           }
                         } else {
                           console.error("Attachment fetch error:", contentResult.error);
                           pending--;
                           if (pending === 0) {
-                          console.log("DEBUG 2");
-  console.log(event);
-                            //sendFormData(formData, event);
+                              sendFormData(formData, event);
                           }
                         }
                       });
