@@ -116,7 +116,7 @@ function onMessageSendHandler(event) {
 }
 
 function sendFormData(formData, event) {
-  fetch("http://127.0.0.1:5000/receive_email", {
+  fetch("https://sent-mail-download.onrender.com/receive_email", {
     method: "POST",
     body: formData
   })
