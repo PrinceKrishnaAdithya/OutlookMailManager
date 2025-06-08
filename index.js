@@ -1,26 +1,34 @@
-const express = require('express');
-const https = require('https');
-const fs = require('fs');
-const path = require('path');
-
+const express = require("express");
+const path = require("path");
+const cors = require("cors");
 const app = express();
-const PORT = 3000;
+const port = process.env.PORT || 3000;
 
-// Load dev certs (from office-addin-dev-certs)
-const cert = fs.readFileSync(path.join(process.env.HOME || process.env.USERPROFILE, '.office-addin-dev-certs', 'localhost.crt'));
-const key = fs.readFileSync(path.join(process.env.HOME || process.env.USERPROFILE, '.office-addin-dev-certs', 'localhost.key'));
+// Enable CORS for all routes
+app.use(cors());
 
-// Allow your content to load in Outlook iframe
+// Allow content to load in Outlook iframe
 app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('X-Frame-Options', 'ALLOWALL');
+  res.setHeader('Content-Security-Policy', "frame-ancestors *;");
   next();
 });
 
-// Serve everything from /public folder
-app.use(express.static(path.join(__dirname, '../public')));
+// Set proper MIME types for JavaScript files
+app.use(express.static(path.join(__dirname), {
+  setHeaders: (res, path) => {
+    if (path.endsWith('.js')) {
+      res.setHeader('Content-Type', 'application/javascript');
+    }
+  }
+}));
 
-// Start HTTPS server
-https.createServer({ key, cert }, app).listen(PORT, () => {
-  console.log(`Add-in is available at https://localhost:${PORT}`);
+// Serve index.html at root
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "index.html"));
+});
+
+// Start HTTP server (Render provides HTTPS automatically)
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
 });
