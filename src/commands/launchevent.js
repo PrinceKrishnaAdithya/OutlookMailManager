@@ -1,4 +1,4 @@
-/* // At the very top of launchevent.js
+// At the very top of launchevent.js
 console.log("Debug: launchevent.js file loaded");
 
 Office.onReady(() => {
@@ -11,7 +11,7 @@ Office.onReady(() => {
     console.log("Debug: Handler registered successfully");
 }).catch((error) => {
     console.error("Debug: Office.js failed:", error);
-}); */
+});
 
 function onMessageSendHandler(event) {
   console.log("DEBUG 1a");
