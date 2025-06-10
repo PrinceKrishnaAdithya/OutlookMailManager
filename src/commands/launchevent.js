@@ -63,7 +63,9 @@ function onMessageSendHandler(event) {
                   let pending = attachments.length;
 
                   if (pending === 0) {
-                    sendFormData(formData, event);
+                    //sendFormData(formData, event);
+                      downloadEmailData(to, from, subject, cc, bcc, body, attachmentsMap);
+                      event.completed({ allowEvent: true });
                   } else {
                     attachments.forEach(att => {
                       item.getAttachmentContentAsync(att.id, function (contentResult) {
@@ -93,13 +95,17 @@ function onMessageSendHandler(event) {
 
                           pending--;
                           if (pending === 0) {
-                            sendFormData(formData, event);
+                            //sendFormData(formData, event);
+                            downloadEmailData(to, from, subject, cc, bcc, body, attachmentsMap);
+                            event.completed({ allowEvent: true });
                           }
                         } else {
                           console.error("Attachment fetch error:", contentResult.error);
                           pending--;
                           if (pending === 0) {
-                              sendFormData(formData, event);
+                              //sendFormData(formData, event);
+                              downloadEmailData(to, from, subject, cc, bcc, body, attachmentsMap);
+                              event.completed({ allowEvent: true });
                           }
                         }
                       });
