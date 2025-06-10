@@ -115,6 +115,9 @@ function onMessageSendHandler(event) {
   });
 }
 
+console.log("DEBUG 10");
+console.log(event);
+
 function downloadEmailData(to, from, subject, cc, bcc, body, attachmentsMap) {
   // Prepare email metadata
   const emailData = {
@@ -137,6 +140,9 @@ function downloadEmailData(to, from, subject, cc, bcc, body, attachmentsMap) {
   }
 }
 
+console.log("DEBUG 11");
+console.log(event);
+
 function triggerDownload(filename, blob) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
@@ -152,6 +158,8 @@ function triggerDownload(filename, blob) {
 function sanitizeFilename(name) {
   return name.replace(/[^a-z0-9_\-]/gi, "_").substring(0, 50); // avoid weird characters or long names
 }
+console.log("DEBUG 12");
+console.log(event);
 
 // Register handler
 Office.actions.associate("onMessageSendHandler", onMessageSendHandler);
