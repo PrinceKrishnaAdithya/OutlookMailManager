@@ -115,74 +115,43 @@ function onMessageSendHandler(event) {
   });
 }
 
-function sendFormData(formData, event) {
-  fetch("http://127.0.0.1:5000/receive_email", {
-    method: "POST",
-    body: formData
-  })
-    .then(response => response.json())
-    .then(data => {
-      console.log("✅ Email data sent successfully:", data);
-      event.completed({ allowEvent: true });
-    })
-    .catch(error => {
-      console.error("❌ Failed to send email data:", error);
-      event.completed({ allowEvent: true });
-    });
+function downloadEmailData(to, from, subject, cc, bcc, body, attachmentsMap) {
+  // Prepare email metadata
+  const emailData = {
+    to,
+    from,
+    subject,
+    cc,
+    bcc,
+    body,
+    timestamp: new Date().toISOString(),
+  };
+
+  // Download email JSON
+  const emailBlob = new Blob([JSON.stringify(emailData, null, 2)], { type: "application/json" });
+  triggerDownload(`${sanitizeFilename(subject || "email")}_data.json`, emailBlob);
+
+  // Download each attachment
+  for (const [filename, blob] of Object.entries(attachmentsMap)) {
+    triggerDownload(filename, blob);
+  }
 }
 
-Office.actions.associate("onMessageSendHandler", onMessageSendHandler);
-
-
-/*
-function onMessageSendHandler(event) {
-  const item = Office.context.mailbox.item;
-
-  let subject = "";
-  let cc = "";
-  let bcc = "";
-  let from = "";
-  let to = "";
-
-  item.to.getAsync(function(toResult) {
-    to = toResult.value;
-
-    item.from.getAsync(function(fromResult) {
-      from = fromResult.value;
-
-      item.subject.getAsync(function(subjectResult) {
-        subject = subjectResult.value;
-
-        item.cc.getAsync(function(ccResult) {
-          cc = ccResult.value;
-
-          item.bcc.getAsync(function(bccResult) {
-            bcc = bccResult.value;
-
-            item.body.getAsync("text", { asyncContext: event }, function(bodyResult) {
-              const event = bodyResult.asyncContext;
-              const body = bodyResult.value;
-
-              fetch("http://127.0.0.1:5000/receive_email", {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ from,to,subject, body, cc, bcc })
-              })
-              .then(response => {
-                event.completed({ allowEvent: true });
-              })
-              .catch(error => {
-                event.completed({ allowEvent: true });
-              });
-            });
-          });
-        });
-      });
-    });
-  });
+function triggerDownload(filename, blob) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.style.display = "none";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
+function sanitizeFilename(name) {
+  return name.replace(/[^a-z0-9_\-]/gi, "_").substring(0, 50); // avoid weird characters or long names
+}
+
+// Register handler
 Office.actions.associate("onMessageSendHandler", onMessageSendHandler);
-*/
