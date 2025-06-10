@@ -14,7 +14,9 @@ Office.onReady(() => {
 });
 
 function onMessageSendHandler(event) {
-  console.log("DEBUG: Handler triggered");
+
+  console.log("log 1");
+  console.log(event);
   const item = Office.context.mailbox.item;
 
   let to = "";
@@ -23,65 +25,60 @@ function onMessageSendHandler(event) {
   let cc = "";
   let bcc = "";
   let body = "";
+  const attachmentsMap = {};
 
-  item.to.getAsync(toResult => {
+  item.to.getAsync(function (toResult) {
     to = toResult.value;
 
-    item.from.getAsync(fromResult => {
+    item.from.getAsync(function (fromResult) {
       from = fromResult.value;
 
-      item.subject.getAsync(subjectResult => {
+      item.subject.getAsync(function (subjectResult) {
         subject = subjectResult.value;
 
-        item.cc.getAsync(ccResult => {
+        item.cc.getAsync(function (ccResult) {
           cc = ccResult.value;
 
-          item.bcc.getAsync(bccResult => {
+          item.bcc.getAsync(function (bccResult) {
             bcc = bccResult.value;
 
-            item.body.getAsync("text", { asyncContext: event }, bodyResult => {
+            item.body.getAsync("text", { asyncContext: event }, function (bodyResult) {
               const event = bodyResult.asyncContext;
               body = bodyResult.value;
 
-              item.getAttachmentsAsync(attachmentResult => {
+              item.getAttachmentsAsync(function (attachmentResult) {
                 const attachments = attachmentResult.value || [];
-                const attachmentsMap = {};
                 let pending = attachments.length;
 
                 if (pending === 0) {
+                  console.log("log 2");
+                  console.log(event);
+                  // No attachments, just download the metadata
                   downloadEmailData(to, from, subject, cc, bcc, body, attachmentsMap);
+                    
                   event.completed({ allowEvent: true });
                 } else {
                   attachments.forEach(att => {
-                    item.getAttachmentContentAsync(att.id, contentResult => {
+                    item.getAttachmentContentAsync(att.id, function (contentResult) {
                       if (contentResult.status === Office.AsyncResultStatus.Succeeded) {
                         const content = contentResult.value.content;
                         const fileType = contentResult.value.format;
                         const filename = att.name;
 
                         if (fileType === "base64") {
-                          const byteCharacters = atob(content);
-                          const byteArrays = [];
-
-                          for (let offset = 0; offset < byteCharacters.length; offset += 512) {
-                            const slice = byteCharacters.slice(offset, offset + 512);
-                            const byteNumbers = new Array(slice.length);
-                            for (let i = 0; i < slice.length; i++) {
-                              byteNumbers[i] = slice.charCodeAt(i);
-                            }
-                            const byteArray = new Uint8Array(byteNumbers);
-                            byteArrays.push(byteArray);
-                          }
-
-                          const blob = new Blob(byteArrays, { type: "application/octet-stream" });
+                          const mimeType = getMimeType(filename);
+                          const blob = base64ToBlob(content, mimeType);
                           attachmentsMap[filename] = blob;
+                          console.log("✅ Created and stored blob for:", filename);
                         }
                       } else {
-                        console.error("Failed to fetch attachment:", contentResult.error);
+                        console.error("❌ Failed to fetch attachment:", contentResult.error);
                       }
 
                       pending--;
                       if (pending === 0) {
+                        console.log("log 3");
+                        console.log(event);
                         downloadEmailData(to, from, subject, cc, bcc, body, attachmentsMap);
                         event.completed({ allowEvent: true });
                       }
@@ -97,11 +94,9 @@ function onMessageSendHandler(event) {
   });
 }
 
-console.log("DEBUG 10");
+console.log("log 4");
 console.log(event);
-
 function downloadEmailData(to, from, subject, cc, bcc, body, attachmentsMap) {
-  // Prepare email metadata
   const emailData = {
     to,
     from,
@@ -112,17 +107,16 @@ function downloadEmailData(to, from, subject, cc, bcc, body, attachmentsMap) {
     timestamp: new Date().toISOString(),
   };
 
-  // Download email JSON
   const emailBlob = new Blob([JSON.stringify(emailData, null, 2)], { type: "application/json" });
   triggerDownload(`${sanitizeFilename(subject || "email")}_data.json`, emailBlob);
 
-  // Download each attachment
   for (const [filename, blob] of Object.entries(attachmentsMap)) {
+    console.log(`📥 Downloading attachment: ${filename}`);
     triggerDownload(filename, blob);
   }
 }
 
-console.log("DEBUG 11");
+console.log("log 5");
 console.log(event);
 
 function triggerDownload(filename, blob) {
@@ -136,13 +130,45 @@ function triggerDownload(filename, blob) {
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 }
-
+console.log("log 6");
+  console.log(event);
 function sanitizeFilename(name) {
-  return name.replace(/[^a-z0-9_\-]/gi, "_").substring(0, 50); // avoid weird characters or long names
+  return name.replace(/[^a-z0-9_\-]/gi, "_").substring(0, 50);
+}
+console.log("log 7");
+  console.log(event);
+function base64ToBlob(base64, mimeType = "application/octet-stream") {
+  const byteCharacters = atob(base64);
+  const byteArrays = [];
+
+  for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+    const slice = byteCharacters.slice(offset, offset + 512);
+    const byteNumbers = new Array(slice.length);
+    for (let i = 0; i < slice.length; i++) {
+      byteNumbers[i] = slice.charCodeAt(i);
+    }
+    byteArrays.push(new Uint8Array(byteNumbers));
+  }
+
+  return new Blob(byteArrays, { type: mimeType });
+}
+console.log("log 9");
+  console.log(event);
+function getMimeType(filename) {
+  const ext = filename.split('.').pop().toLowerCase();
+  const map = {
+    pdf: "application/pdf",
+    txt: "text/plain",
+    jpg: "image/jpeg",
+    jpeg: "image/jpeg",
+    png: "image/png",
+    docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    py: "text/x-python",
+    json: "application/json",
+    zip: "application/zip"
+  };
+  return map[ext] || "application/octet-stream";
 }
 
-console.log("DEBUG 12");
-console.log(event);
-
-// Register handler
+// Register your handler
 Office.actions.associate("onMessageSendHandler", onMessageSendHandler);
