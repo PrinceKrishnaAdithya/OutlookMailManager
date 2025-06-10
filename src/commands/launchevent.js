@@ -99,6 +99,7 @@ function onMessageSendHandler(event) {
 }
 
 function downloadEmailData(to, from, subject, cc, bcc, body, attachmentsMap) {
+  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
   // Prepare email metadata
   const emailData = {
     to,
@@ -112,7 +113,7 @@ function downloadEmailData(to, from, subject, cc, bcc, body, attachmentsMap) {
 
   // Download email JSON
   const emailBlob = new Blob([JSON.stringify(emailData, null, 2)], { type: "application/json" });
-  triggerDownload(`${sanitizeFilename(subject || "email")}_data.json`, emailBlob);
+  triggerDownload(`${sanitizeFilename(timestamp || "email")}_data.json`, emailBlob);
 
   // Download each attachment
   for (const [filename, blob] of Object.entries(attachmentsMap)) {
