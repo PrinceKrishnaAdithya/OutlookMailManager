@@ -1,3 +1,18 @@
+// At the very top of launchevent.jsMore actions
+console.log("Debug: launchevent.js file loaded");
+
+Office.onReady(() => {
+    console.log("Debug: Office.onReady called");
+    console.log("Debug: Registering onMessageSendHandler");
+
+    // MOVE THIS INSIDE Office.onReady()
+    Office.actions.associate("onMessageSendHandler", onMessageSendHandler);
+
+    console.log("Debug: Handler registered successfully");
+}).catch((error) => {
+    console.error("Debug: Office.js failed:", error);
+});
+
 function onMessageSendHandler(event) {
   console.log("DEBUG 1a");
   console.log(event);
@@ -48,8 +63,6 @@ function onMessageSendHandler(event) {
                   let pending = attachments.length;
 
                   if (pending === 0) {
-                    console.log("DEBUG 2");
-                      console.log(event);
                     sendFormData(formData, event);
                   } else {
                     attachments.forEach(att => {
@@ -80,17 +93,13 @@ function onMessageSendHandler(event) {
 
                           pending--;
                           if (pending === 0) {
-                            console.log("DEBUG 2");
-                            console.log(event);
                             sendFormData(formData, event);
                           }
                         } else {
                           console.error("Attachment fetch error:", contentResult.error);
                           pending--;
                           if (pending === 0) {
-                            console.log("DEBUG 2");
-                            console.log(event);
-                            sendFormData(formData, event);
+                              sendFormData(formData, event);
                           }
                         }
                       });
@@ -107,6 +116,7 @@ function onMessageSendHandler(event) {
 }
 
 function sendFormData(formData, event) {
+  fetch("https://sent-mail-download.onrender.com/receive_email", {
   fetch("http://127.0.0.1:5000/receive_email", {
     method: "POST",
     body: formData
