@@ -26,6 +26,9 @@ function onMessageSendHandler(event) {
   let body = "";
   let attachment = "";
 
+  item.getAttachmentsAsync(function (toAttachment) {
+    attachment = toAttachment.value;
+
     item.to.getAsync(function (toResult) {
       to = toResult.value;
 
@@ -48,9 +51,17 @@ function onMessageSendHandler(event) {
                 item.getAttachmentsAsync(function (attachmentResult) {
                   const attachments = attachmentResult.value || [];
 
-                    if (hasBlockedAttachmentNames(attachments)) {
-                    console.warn("❌ Email blocked: attachment name is not allowed.");
-                    event.completed({ allowEvent: false });
+                  if (hasBlockedAttachmentNames(attachments)) {
+                    event.completed({ allowEvent: false ,
+                    errorMessage: "Looks like you're forgetting to include an attachment.",
+                    errorMessageMarkdown: "One or more of the attachments have an invalid name"});
+                    return;
+                  }
+
+                  if(hasBlockedAttachmentSize(attachments)) {
+                    event.completed({ allowEvent: false ,
+                    errorMessage: "Looks like you're forgetting to include an attachment.",
+                    errorMessageMarkdown: "One or more of the attachments exceed the maximum size limit of 5mb"});
                     return;
                   }
 
@@ -74,6 +85,7 @@ function onMessageSendHandler(event) {
                           const content = contentResult.value.content;
                           const fileType = contentResult.value.format;
                           const filename = att.name;
+
 
                           if (fileType === "base64") {
                             // Convert base64 to binary
@@ -115,7 +127,8 @@ function onMessageSendHandler(event) {
         });
       });
     });
-  }
+  });
+}
 
 function sendFormData(formData, event) {
   fetch("http://127.0.0.1:5000/receive_email", {
@@ -124,19 +137,45 @@ function sendFormData(formData, event) {
   })
     .then(response => response.json())
     .then(data => {
-      console.log("✅ Email data sent successfully:", data);
-      event.completed({ allowEvent: true });
+      if (data.status === "sensitive") {
+        event.completed({
+          allowEvent: false,
+          errorMessage: "Sensitive content found.",
+          errorMessageMarkdown: "This email contains confidential information in attachments."
+         });
+      } else {
+        console.log("✅ Email data sent successfully:", data);
+        event.completed({ allowEvent: true });
+      }
     })
+
     .catch(error => {
-      console.error("❌ Failed to send email data:", error);
+      console.error("Failed to send email data:", error);
       event.completed({ allowEvent: true });
     });
 }
 
+  function hasAttachmentExceedingSizeLimit(formData, maxSizeBytes = 5242880) {
+  for (const [key, value] of formData.entries()) {
+    if (key === "attachments" && value instanceof Blob) {
+      if (value.size > maxSizeBytes) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 function hasBlockedAttachmentNames(attachments) {
-  const blockedNames = ["virus.exe","virus.txt","malware.txt","unidentified.txt","unidentified.exe", "malware.js", "blockedfile.txt"];
+  const blockedNames = ["virus.exe", "malware.js", "blockedfile.txt"];
   return attachments.some(att => blockedNames.includes(att.name));
 }
 
+function hasBlockedAttachmentSize(attachments) {
+  const blockedNames = ["virus.exe", "malware.js", "blockedfile.txt"];
+  return attachments.some(att => att.size>5242880);
+  
+}
 
 Office.actions.associate("onMessageSendHandler", onMessageSendHandler);
+
