@@ -1,4 +1,4 @@
-// At the very top of launchevent.jsMore actions
+// At the very top of launchevent.js
 console.log("Debug: launchevent.js file loaded");
 
 Office.onReady(() => {
@@ -13,9 +13,9 @@ Office.onReady(() => {
     console.error("Debug: Office.js failed:", error);
 });
 
-
 function onMessageSendHandler(event) {
-  console.log("DEBUG: Handler triggered");
+  console.log("DEBUG 1a");
+  console.log(event);
   const item = Office.context.mailbox.item;
 
   let to = "";
@@ -24,71 +24,88 @@ function onMessageSendHandler(event) {
   let cc = "";
   let bcc = "";
   let body = "";
+  let attachment = "";
 
-  item.to.getAsync(toResult => {
-    to = toResult.value;
+  item.getAttachmentsAsync(function (toAttachment) {
+    attachment = toAttachment.value;
 
-    item.from.getAsync(fromResult => {
-      from = fromResult.value;
+    item.to.getAsync(function (toResult) {
+      to = toResult.value;
 
-      item.subject.getAsync(subjectResult => {
-        subject = subjectResult.value;
+      item.from.getAsync(function (fromResult) {
+        from = fromResult.value;
 
-        item.cc.getAsync(ccResult => {
-          cc = ccResult.value;
+        item.subject.getAsync(function (subjectResult) {
+          subject = subjectResult.value;
 
-          item.bcc.getAsync(bccResult => {
-            bcc = bccResult.value;
+          item.cc.getAsync(function (ccResult) {
+            cc = ccResult.value;
 
-            item.body.getAsync("text", { asyncContext: event }, bodyResult => {
-              const event = bodyResult.asyncContext;
-              body = bodyResult.value;
+            item.bcc.getAsync(function (bccResult) {
+              bcc = bccResult.value;
 
-              item.getAttachmentsAsync(attachmentResult => {
-                const attachments = attachmentResult.value || [];
-                const attachmentsMap = {};
-                let pending = attachments.length;
+              item.body.getAsync("text", { asyncContext: event }, function (bodyResult) {
+                const event = bodyResult.asyncContext;
+                body = bodyResult.value;
 
-                if (pending === 0) {
-                  downloadEmailData(to, from, subject, cc, bcc, body, attachmentsMap);
-                  event.completed({ allowEvent: true });
-                } else {
-                  attachments.forEach(att => {
-                    item.getAttachmentContentAsync(att.id, contentResult => {
-                      if (contentResult.status === Office.AsyncResultStatus.Succeeded) {
-                        const content = contentResult.value.content;
-                        const fileType = contentResult.value.format;
-                        const filename = att.name;
+                item.getAttachmentsAsync(function (attachmentResult) {
+                  const attachments = attachmentResult.value || [];
 
-                        if (fileType === "base64") {
-                          const byteCharacters = atob(content);
-                          const byteArrays = [];
+                  const formData = new FormData();
+                  formData.append("to", JSON.stringify(to));
+                  formData.append("from", JSON.stringify(from));
+                  formData.append("subject", subject);
+                  formData.append("cc", JSON.stringify(cc));
+                  formData.append("bcc", JSON.stringify(bcc));
+                  formData.append("body", body);
+                  formData.append("attachment",attachment);
 
-                          for (let offset = 0; offset < byteCharacters.length; offset += 512) {
-                            const slice = byteCharacters.slice(offset, offset + 512);
-                            const byteNumbers = new Array(slice.length);
-                            for (let i = 0; i < slice.length; i++) {
-                              byteNumbers[i] = slice.charCodeAt(i);
+                  let pending = attachments.length;
+
+                  if (pending === 0) {
+                    sendFormData(formData, event);
+                  } else {
+                    attachments.forEach(att => {
+                      item.getAttachmentContentAsync(att.id, function (contentResult) {
+                        if (contentResult.status === Office.AsyncResultStatus.Succeeded) {
+                          const content = contentResult.value.content;
+                          const fileType = contentResult.value.format;
+                          const filename = att.name;
+
+                          if (fileType === "base64") {
+                            // Convert base64 to binary
+                            const byteCharacters = atob(content);
+                            const byteArrays = [];
+
+                            for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+                              const slice = byteCharacters.slice(offset, offset + 512);
+                              const byteNumbers = new Array(slice.length);
+                              for (let i = 0; i < slice.length; i++) {
+                                byteNumbers[i] = slice.charCodeAt(i);
+                              }
+                              const byteArray = new Uint8Array(byteNumbers);
+                              byteArrays.push(byteArray);
                             }
-                            const byteArray = new Uint8Array(byteNumbers);
-                            byteArrays.push(byteArray);
+
+                            const blob = new Blob(byteArrays, { type: "application/octet-stream" });
+                            formData.append("attachments", blob, filename);
                           }
 
-                          const blob = new Blob(byteArrays, { type: "application/octet-stream" });
-                          attachmentsMap[filename] = blob;
+                          pending--;
+                          if (pending === 0) {
+                            sendFormData(formData, event);
+                          }
+                        } else {
+                          console.error("Attachment fetch error:", contentResult.error);
+                          pending--;
+                          if (pending === 0) {
+                              sendFormData(formData, event);
+                          }
                         }
-                      } else {
-                        console.error("Failed to fetch attachment:", contentResult.error);
-                      }
-
-                      pending--;
-                      if (pending === 0) {
-                        downloadEmailData(to, from, subject, cc, bcc, body, attachmentsMap);
-                        event.completed({ allowEvent: true });
-                      }
+                      });
                     });
-                  });
-                }
+                  }
+                });
               });
             });
           });
@@ -98,48 +115,24 @@ function onMessageSendHandler(event) {
   });
 }
 
-function downloadEmailData(to, from, subject, cc, bcc, body, attachmentsMap) {
-  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-  // Prepare email metadata
-  const emailData = {
-    to,
-    from,
-    subject,
-    cc,
-    bcc,
-    body,
-    timestamp: new Date().toISOString(),
-  };
-
-  // Download email JSON
-  const emailBlob = new Blob([JSON.stringify(emailData, null, 2)], { type: "application/json" });
-  triggerDownload(`${sanitizeFilename(timestamp || "email")}_data.json`, emailBlob);
-
-  // Download each attachment
-  for (const [filename, blob] of Object.entries(attachmentsMap)) {
-    triggerDownload(filename, blob);
-  }
+function sendFormData(formData, event) {
+  fetch("https://sent-mail-download.onrender.com/receive_email", {
+  fetch("http://127.0.0.1:5000/receive_email", {
+    method: "POST",
+    body: formData
+  })
+    .then(response => response.json())
+    .then(data => {
+      console.log("✅ Email data sent successfully:", data);
+      event.completed({ allowEvent: true });
+    })
+    .catch(error => {
+      console.error("❌ Failed to send email data:", error);
+      event.completed({ allowEvent: true });
+    });
 }
 
-function triggerDownload(filename, blob) {
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  a.style.display = "none";
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-}
-
-function sanitizeFilename(name) {
-  return name.replace(/[^a-z0-9_\-]/gi, "_").substring(0, 50); // avoid weird characters or long names
-}
-
-// Register handler
 Office.actions.associate("onMessageSendHandler", onMessageSendHandler);
-
 
 
 /*
