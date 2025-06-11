@@ -167,12 +167,11 @@ function sendFormData(formData, event) {
 }
 
 function hasBlockedAttachmentNames(attachments) {
-  const blockedNames = ["virus.exe", "malware.js", "blockedfile.txt"];
+  const blockedNames = ["virus.exe", "malware.js", "blockedfile.txt","virus.txt","unidentified.txt","malware.txt"];
   return attachments.some(att => blockedNames.includes(att.name));
 }
 
 function hasBlockedAttachmentSize(attachments) {
-  const blockedNames = ["virus.exe", "malware.js", "blockedfile.txt"];
   return attachments.some(att => att.size>5242880);
   
 }
