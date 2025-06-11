@@ -26,9 +26,6 @@ function onMessageSendHandler(event) {
   let body = "";
   let attachment = "";
 
-  item.getAttachmentsAsync(function (toAttachment) {
-    attachment = toAttachment.value;
-
     item.to.getAsync(function (toResult) {
       to = toResult.value;
 
@@ -50,6 +47,12 @@ function onMessageSendHandler(event) {
 
                 item.getAttachmentsAsync(function (attachmentResult) {
                   const attachments = attachmentResult.value || [];
+
+                    if (hasBlockedAttachmentNames(attachments)) {
+                    console.warn("❌ Email blocked: attachment name is not allowed.");
+                    event.completed({ allowEvent: false });
+                    return;
+                  }
 
                   const formData = new FormData();
                   formData.append("to", JSON.stringify(to));
@@ -112,8 +115,7 @@ function onMessageSendHandler(event) {
         });
       });
     });
-  });
-}
+  }
 
 function sendFormData(formData, event) {
   fetch("http://127.0.0.1:5000/receive_email", {
@@ -130,5 +132,11 @@ function sendFormData(formData, event) {
       event.completed({ allowEvent: true });
     });
 }
+
+function hasBlockedAttachmentNames(attachments) {
+  const blockedNames = ["virus.exe","virus.txt","malware.txt","unidentified.txt","unidentified.exe", "malware.js", "blockedfile.txt"];
+  return attachments.some(att => blockedNames.includes(att.name));
+}
+
 
 Office.actions.associate("onMessageSendHandler", onMessageSendHandler);
