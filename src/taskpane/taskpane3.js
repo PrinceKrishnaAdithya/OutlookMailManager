@@ -1,4 +1,3 @@
-function runTaskpane3Logic(event) {
     console.log("DEBUG 1a");
     let token = "1";
     const formdata = new FormData();
@@ -17,4 +16,3 @@ function runTaskpane3Logic(event) {
         console.error("Error:", error);
         event.completed();
     });
-}
