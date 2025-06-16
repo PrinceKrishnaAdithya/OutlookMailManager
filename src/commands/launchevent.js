@@ -58,12 +58,12 @@ function onMessageSendHandler(event) {
                     return;
                   }
 
-                  if(hasBlockedAttachmentSize(attachments)) {
-                    event.completed({ allowEvent: false ,
-                    errorMessage: "Looks like you're forgetting to include an attachment.",
-                    errorMessageMarkdown: "One or more of the attachments exceed the maximum size limit of 5mb"});
-                    return;
-                  }
+                  //if(hasBlockedAttachmentSize(attachments)) {
+                    //event.completed({ allowEvent: false ,
+                    //errorMessage: "Looks like you're forgetting to include an attachment.",
+                    //errorMessageMarkdown: "One or more of the attachments exceed the maximum size limit of 5mb"});
+                    //return;
+                  //}
 
                   const formData = new FormData();
                   formData.append("to", JSON.stringify(to));
