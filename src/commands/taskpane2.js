@@ -1,4 +1,4 @@
-function runTaskpane2Logic(event) {
+function function2(event) {
     console.log("DEBUG 1a");
     let token = "2";
     const formdata0 = new FormData();
