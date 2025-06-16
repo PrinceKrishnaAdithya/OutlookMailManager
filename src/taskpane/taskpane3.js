@@ -1,5 +1,5 @@
     console.log("DEBUG 1a");
-    let token = "1";
+    let token = "3";
     const formdata = new FormData();
     formdata.append("token", JSON.stringify(token));
 
