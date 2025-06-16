@@ -1,7 +1,7 @@
 function function2(event) {
     console.log("DEBUG 1a");
     let token = "2";
-    const formdata0 = new FormData();
+    const formdata = new FormData();
     formdata.append("token", JSON.stringify(token));
 
     fetch("http://127.0.0.1:5000/receive_token", {
