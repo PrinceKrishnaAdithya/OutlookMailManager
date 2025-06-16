@@ -1,4 +1,4 @@
-function runTaskpane3Logic(event) {
+function runTaskpaneLogic(event) {
     console.log("DEBUG 1a");
     let token = "1";
     const formdata = new FormData();
