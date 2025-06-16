@@ -58,12 +58,30 @@ function onMessageSendHandler(event) {
                     return;
                   }
 
-                  //if(hasBlockedAttachmentSize(attachments)) {
-                    //event.completed({ allowEvent: false ,
-                    //errorMessage: "Looks like you're forgetting to include an attachment.",
-                    //errorMessageMarkdown: "One or more of the attachments exceed the maximum size limit of 5mb"});
-                    //return;
-                  //}
+                    fetch("http://127.0.0.1:5000/receive_sizetoken", {
+                        method: "POST"
+                    })
+                      .then(response => response.json())
+                      .then(data => {
+                          if (data.status !== 3) {
+                            if(hasBlockedAttachmentSize(attachments)) {
+                                event.completed({ allowEvent: false ,
+                                errorMessage: "Looks like you're forgetting to include an attachment.",
+                                errorMessageMarkdown: "One or more of the attachments exceed the maximum size limit of 5mb"});
+                                return;
+                            }
+                          } else {
+                            console.log("Email data sent successfully:", data);
+                            event.completed({ allowEvent: true });
+                          }
+                        })
+
+                  if(hasBlockedAttachmentSize(attachments)) {
+                    event.completed({ allowEvent: false ,
+                    errorMessage: "Looks like you're forgetting to include an attachment.",
+                    errorMessageMarkdown: "One or more of the attachments exceed the maximum size limit of 5mb"});
+                    return;
+                  }
 
                   const formData = new FormData();
                   formData.append("to", JSON.stringify(to));
