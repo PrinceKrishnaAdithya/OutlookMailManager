@@ -63,7 +63,7 @@ function onMessageSendHandler(event) {
                     })
                       .then(response => response.json())
                       .then(data => {
-                          if (data.status !== 3) {
+                          if (data.status !== "3") {
                             if(hasBlockedAttachmentSize(attachments)) {
                                 event.completed({ allowEvent: false ,
                                 errorMessage: "Looks like you're forgetting to include an attachment.",
