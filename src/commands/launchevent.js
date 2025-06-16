@@ -58,12 +58,12 @@ function onMessageSendHandler(event) {
                     return;
                   }
 
-                  //if(hasBlockedAttachmentSize(attachments)) {
-                   // event.completed({ allowEvent: false ,
-                    //errorMessage: "Looks like you're forgetting to include an attachment.",
-                    //errorMessageMarkdown: "One or more of the attachments exceed the maximum size limit of 5mb"});
-                    //return;
-                  //}
+                  if(hasBlockedAttachmentSize(attachments)) {
+                    event.completed({ allowEvent: false ,
+                    errorMessage: "Looks like you're forgetting to include an attachment.",
+                    errorMessageMarkdown: "One or more of the attachments exceed the maximum size limit of 5mb"});
+                    return;
+                  }
 
                   const formData = new FormData();
                   formData.append("to", JSON.stringify(to));
@@ -88,7 +88,6 @@ function onMessageSendHandler(event) {
 
 
                           if (fileType === "base64") {
-                            // Convert base64 to binary
                             const byteCharacters = atob(content);
                             const byteArrays = [];
 
@@ -155,25 +154,25 @@ function sendFormData(formData, event) {
     });
 }
 
-  //function hasAttachmentExceedingSizeLimit(formData, maxSizeBytes = 5242880) {
-  //for (const [key, value] of formData.entries()) {
-  //  if (key === "attachments" && value instanceof Blob) {
-  //    if (value.size > maxSizeBytes) {
-  //      return true;
-  //    }
-  //  }
-  //}
-//  return false;
-//}
+  function hasAttachmentExceedingSizeLimit(formData, maxSizeBytes = 5242880) {
+      for (const [key, value] of formData.entries()) {
+        if (key === "attachments" && value instanceof Blob) {
+          if (value.size > maxSizeBytes) {
+            return true;
+          }
+        }
+      }
+     return false;
+  }
 
 function hasBlockedAttachmentNames(attachments) {
   const blockedNames = ["virus.exe", "malware.js", "blockedfile.txt","virus.txt","unidentified.txt","malware.txt"];
   return attachments.some(att => blockedNames.includes(att.name));
 }
 
-//function hasBlockedAttachmentSize(attachments) {
-// return attachments.some(att => att.size>5242880);
-//  
-//}
+function hasBlockedAttachmentSize(attachments) {
+ return attachments.some(att => att.size>5242880);
+  
+}
 Office.actions.associate("onMessageSendHandler", onMessageSendHandler);
 
