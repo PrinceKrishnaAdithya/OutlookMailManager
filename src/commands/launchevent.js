@@ -71,6 +71,8 @@ function onMessageSendHandler(event) {
                     
                     // If token is NOT 3 (i.e., token is 1 or 2), check file size in frontend
                     if (data.status !== 3) {
+                        console.log("entered the size checking");
+                        console.log(event);
                       if (hasBlockedAttachmentSize(attachments)) {
                         event.completed({ 
                           allowEvent: false,
