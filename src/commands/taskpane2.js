@@ -1,8 +1,5 @@
-function setModeProtected(event) {
-    return new Promise((resolve) => {
-        console.log("Setting mode to protected");
-        localStorage.setItem("mail_mode", "protected");
-        event.completed();
-        resolve();
-    });
+async function setModeProtected(event) {
+    await OfficeRuntime.storage.setItem("mail_mode", "protected");
+    console.log("Set mode to protected using OfficeRuntime.storage");
+    event.completed();
 }
