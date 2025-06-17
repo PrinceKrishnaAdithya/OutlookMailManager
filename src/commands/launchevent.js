@@ -170,6 +170,10 @@ function onMessageSendHandler(event) {
 }
 
 function sendFormData(formData, event) {
+  const mode = localStorage.getItem("mail_mode") || "private"; 
+  console.log("Sending email with mode:", mode);
+  const formData = new FormData();
+  formData.append("mode", mode);
   fetch("http://127.0.0.1:5000/receive_email", {
     method: "POST",
     body: formData
