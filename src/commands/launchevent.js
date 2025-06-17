@@ -68,7 +68,7 @@ function onMessageSendHandler(event) {
                   .then(response => response.json())
                   .then(data => {
                     console.log("Token status:", data.status);
-                    if (data.status === "size_too_much") {
+                    if (data.status !== 3) {
                         console.log("entered the size checking");
                         console.log(event);
                       if (hasBlockedAttachmentSize(attachments)) {
@@ -169,7 +169,7 @@ function sendFormData(formData, event) {
           errorMessageMarkdown: "This email contains confidential information in attachments."
         });
       } else {
-        console.log("✅ Email data sent successfully:", data);
+        console.log("Email data sent successfully:", data);
         event.completed({ allowEvent: true });
       }
     })
