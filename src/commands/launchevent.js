@@ -68,9 +68,7 @@ function onMessageSendHandler(event) {
                   .then(response => response.json())
                   .then(data => {
                     console.log("Token status:", data.status);
-                    
-                    // If token is NOT 3 (i.e., token is 1 or 2), check file size in frontend
-                    if (data.status !== 3) {
+                    if (data.status === "size_too_much") {
                         console.log("entered the size checking");
                         console.log(event);
                       if (hasBlockedAttachmentSize(attachments)) {
@@ -169,12 +167,6 @@ function sendFormData(formData, event) {
           allowEvent: false,
           errorMessage: "Sensitive content found.",
           errorMessageMarkdown: "This email contains confidential information in attachments."
-        });
-      } else if (data.status === "file_too_large") {
-        event.completed({
-          allowEvent: false,
-          errorMessage: "File size limit exceeded.",
-          errorMessageMarkdown: "One or more attachments exceed the maximum size limit of 5MB."
         });
       } else {
         console.log("✅ Email data sent successfully:", data);
