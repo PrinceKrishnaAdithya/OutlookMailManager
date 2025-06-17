@@ -1,4 +1,4 @@
-function setModePublic(event) {
+async function setModePublic(event) {
     localStorage.setItem("mail_mode", "public");
     event.completed();
 }
