@@ -202,6 +202,25 @@ function hasBlockedAttachmentSize(attachments) {
   return attachments.some(att => att.size > 5242880);
 }
 
+function setModePrivate(event) {
+    localStorage.setItem("mail_mode", "private");
+    console.log("Mode set to private");
+    event.completed();
+}
+
+function setModeProtected(event) {
+    localStorage.setItem("mail_mode", "protected");
+    console.log("Mode set to protected");
+    event.completed();
+}
+
+function setModePublic(event) {
+    localStorage.setItem("mail_mode", "public");
+    console.log("Mode set to public");
+    event.completed();
+}
+
+
 Office.actions.associate("onMessageSendHandler", onMessageSendHandler);
 
 
