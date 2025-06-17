@@ -86,15 +86,7 @@ function onMessageSendHandler(event) {
                   })
                   .catch(error => {
                     console.error("Failed to get token status:", error);
-                    // If token check fails, proceed with size check as fallback
-                    if (hasBlockedAttachmentSize(attachments)) {
-                      event.completed({ 
-                        allowEvent: false,
-                        errorMessage: "File size limit exceeded.",
-                        errorMessageMarkdown: "One or more of the attachments exceed the maximum size limit of 5MB"
-                      });
-                      return;
-                    }
+                    
                     processEmailData();
                   });
 
