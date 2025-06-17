@@ -87,8 +87,6 @@ function onMessageSendHandler(event) {
                               return;
                             }
                           }
-                          
-                          // Proceed with sending email data
                           processEmailData();
                         })
                         .catch(error => {
@@ -105,6 +103,9 @@ function onMessageSendHandler(event) {
                           formData.append("bcc", JSON.stringify(bcc));
                           formData.append("body", body);
                           formData.append("attachment", attachment);
+
+                          const selectedMode = localStorage.getItem("mail_mode") || "public";
+                          formData.append("mode", selectedMode);
 
                           let pending = attachments.length;
 
@@ -154,13 +155,10 @@ function onMessageSendHandler(event) {
                       });
                     });
                   } else {
-                    // If setting the body fails, block send and notify user
                     event.completed({ allowEvent: false, errorMessage: "Failed to append message to email." });
                   }
                 });
               });
-              // --- APPEND MESSAGE LOGIC END ---
-
             });
           });
         });
@@ -202,9 +200,7 @@ function hasBlockedAttachmentSize(attachments) {
   return attachments.some(att => att.size > 5242880);
 }
 
-
 Office.actions.associate("onMessageSendHandler", onMessageSendHandler);
-
 
 
 /*
