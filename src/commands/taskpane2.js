@@ -1,4 +1,4 @@
-function setModePublic(event) {
-    localStorage.setItem("mail_mode", "public");
+function setModeProtected(event) {
+    localStorage.setItem("mail_mode", "protected");
     event.completed();
 }
