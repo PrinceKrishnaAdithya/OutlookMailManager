@@ -170,10 +170,6 @@ function onMessageSendHandler(event) {
 }
 
 function sendFormData(formData, event) {
-  const mode = localStorage.getItem("mail_mode") || "private"; 
-  console.log("Sending email with mode:", mode);
-  const formData = new FormData();
-  formData.append("mode", mode);
   fetch("http://127.0.0.1:5000/receive_email", {
     method: "POST",
     body: formData
@@ -204,24 +200,6 @@ function hasBlockedAttachmentNames(attachments) {
 
 function hasBlockedAttachmentSize(attachments) {
   return attachments.some(att => att.size > 5242880);
-}
-
-function setModePrivate(event) {
-    localStorage.setItem("mail_mode", "private");
-    console.log("Mode set to private");
-    event.completed();
-}
-
-function setModeProtected(event) {
-    localStorage.setItem("mail_mode", "protected");
-    console.log("Mode set to protected");
-    event.completed();
-}
-
-function setModePublic(event) {
-    localStorage.setItem("mail_mode", "public");
-    console.log("Mode set to public");
-    event.completed();
 }
 
 
