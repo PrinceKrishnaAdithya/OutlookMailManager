@@ -43,31 +43,18 @@ function onMessageSendHandler(event) {
               const selectedMode = localStorage.getItem("mail_mode") || "private";
               const fd = new FormData();
               fd.append("mode", JSON.stringify(selectedMode));
-                
-              item.body.getAsync("html", { asyncContext: event }, function (bodyResult) {
-                const event = bodyResult.asyncContext;
-                let currentBody = bodyResult.value || "";
-                //let appendedMessage = `<br/><br/><i>This message was sent under ${selectedMode} constraint.</i>`;
-                //let newBody = currentBody + appendedMessage;
 
-                item.body.setAsync(currentBody, { coercionType: "html" }, function (setResult) {
-                  if (setResult.status === Office.AsyncResultStatus.Succeeded) {
-                    item.body.getAsync("text", { asyncContext: event }, function (bodyResultText) {
-                      body = bodyResultText.value;
+              if (hasBlockedAttachmentNames(attachments)) {
+                    event.completed({ 
+                    allowEvent: false,
+                    errorMessage: "Blocked attachment detected.",
+                    errorMessageMarkdown: "One or more of the attachments have an invalid name"
+                    });
+                    return;
+                }
 
-                      item.getAttachmentsAsync(function (attachmentResult) {
-                        const attachments = attachmentResult.value || [];
 
-                        if (hasBlockedAttachmentNames(attachments)) {
-                          event.completed({ 
-                            allowEvent: false,
-                            errorMessage: "Blocked attachment detected.",
-                            errorMessageMarkdown: "One or more of the attachments have an invalid name"
-                          });
-                          return;
-                        }
-
-                        fetch("http://127.0.0.1:5000/receive_sizetoken", {
+               fetch("http://127.0.0.1:5000/receive_sizetoken", {
                           method: "POST",
                           body: fd
                         })
@@ -92,7 +79,25 @@ function onMessageSendHandler(event) {
                         .catch(error => {
                           console.error("Failed to get token status:", error);
                           processEmailData();
-                        });
+                        }); 
+                
+              item.body.getAsync("html", { asyncContext: event }, function (bodyResult) {
+                const event = bodyResult.asyncContext;
+                let currentBody = bodyResult.value || "";
+                let appendedMessage = `<br/><br/><i>This message was sent under ${selectedMode} constraint.</i>`;
+                let newBody = currentBody + appendedMessage;
+
+                item.body.setAsync(newBody, { coercionType: "html" }, function (setResult) {
+                  if (setResult.status === Office.AsyncResultStatus.Succeeded) {
+                    item.body.getAsync("text", { asyncContext: event }, function (bodyResultText) {
+                      body = bodyResultText.value;
+
+                      item.getAttachmentsAsync(function (attachmentResult) {
+                        const attachments = attachmentResult.value || [];
+
+                        
+
+                        
 
                         function processEmailData() {
                           const formData = new FormData();
@@ -186,27 +191,6 @@ function sendFormData(formData, event) {
       console.error("Failed to send email data:", error);
       event.completed({ allowEvent: true });
     });
-
-    const selectedMode = localStorage.getItem("mail_mode") || "private";
-    const fd = new FormData();
-    fd.append("mode", JSON.stringify(selectedMode));
-                
-    item.body.getAsync("html", { asyncContext: event }, function (bodyResult) {
-        const event = bodyResult.asyncContext;
-        let currentBody = bodyResult.value || "";
-        let appendedMessage = `<br/><br/><i>This message was sent under ${selectedMode} constraint.</i>`;
-        let newBody = currentBody + appendedMessage;
-        item.body.setAsync(currentBody, { coercionType: "html" }, function (setResult) {
-            if (setResult.status === Office.AsyncResultStatus.Succeeded) {
-                item.body.getAsync("text", { asyncContext: event }, function (bodyResultText) {
-                    body = bodyResultText.value;
-                });
-            }
-        });
-    });
-    
-
-    
 }
 
 function hasBlockedAttachmentNames(attachments) {
@@ -219,8 +203,6 @@ function hasBlockedAttachmentSize(attachments) {
 }
 
 Office.actions.associate("onMessageSendHandler", onMessageSendHandler);
-
-
 
 
 /*
