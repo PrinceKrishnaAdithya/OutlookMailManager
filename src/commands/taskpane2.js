@@ -1,13 +1,20 @@
-function setModeProtected(event) {
-  OfficeRuntime.storage.setItem("mail_mode", "protected")
-    .then(() => {
-      console.log("Mail mode set to protected");
-      event.completed();
+function runTaskpane2Logic(event) {
+    console.log("DEBUG 1a");
+    let token = "2";
+    const formdata = new FormData();
+    formdata.append("token", JSON.stringify(token));
+
+    fetch("http://127.0.0.1:5000/receive_token", {
+        method: "POST",
+        body: formdata
     })
-    .catch((error) => {
-      console.error("Storage error:", error);
-      event.completed();
+    .then(response => response.json())
+    .then(data => {
+        console.log(" Response:", data);
+        event.completed();
+    })
+    .catch(error => {
+        console.error("Error:", error);
+        event.completed();
     });
 }
-
-window.setModeProtected = setModeProtected;
