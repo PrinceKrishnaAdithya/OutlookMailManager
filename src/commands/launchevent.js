@@ -84,7 +84,7 @@ function onMessageSendHandler(event) {
                     const event = bodyResult.asyncContext;
                     let currentBody = bodyResult.value || "";
                     let appendedMessage = `<br/><br/><i>This message was sent under ${selectedMode} constraint.</i><!-- MailManagerAppended -->`;
-                    if (!currentBody.includes("<!-- MailManagerAppended -->") {
+                    if (!currentBody.includes("<!-- MailManagerAppended -->")) {
                       let newBody = currentBody + appendedMessage;
                       item.body.setAsync(newBody, { coercionType: "html" }, function (setResult) {
                         if (setResult.status === Office.AsyncResultStatus.Succeeded) {
