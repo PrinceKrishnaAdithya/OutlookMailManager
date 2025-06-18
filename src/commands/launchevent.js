@@ -84,9 +84,9 @@ function onMessageSendHandler(event) {
                     const event = bodyResult.asyncContext;
                     let currentBody = bodyResult.value || "";
                     let appendedMessage = `<br/><br/><i>This message was sent under ${selectedMode} constraint.</i>`;
-                    let appendedMessage1 = "<br/><br/><i>This message was sent under private constraint.</i>";
-                    let appendedMessage2 = "<br/><br/><i>This message was sent under public constraint.</i>";
-                    let appendedMessage3 = "<br/><br/><i>This message was sent under protected constraint.</i>";
+                    let appendedMessage1 = `<br/><br/><i>This message was sent under private constraint.</i>`;
+                    let appendedMessage2 = `<br/><br/><i>This message was sent under public constraint.</i>`;
+                    let appendedMessage3 = `<br/><br/><i>This message was sent under protected constraint.</i>`;
                     if (!currentBody.includes(appendedMessage1) && !currentBody.includes(appendedMessage2) && !currentBody.includes(appendedMessage3)) {
                       let newBody = currentBody + appendedMessage;
                       item.body.setAsync(newBody, { coercionType: "html" }, function (setResult) {
