@@ -39,11 +39,9 @@ function onMessageSendHandler(event) {
             item.bcc.getAsync(function (bccResult) {
               bcc = bccResult.value;
 
-              // Get attachments for validation
               item.getAttachmentsAsync(function (attachmentResult) {
                 const attachments = attachmentResult.value || [];
 
-                // 1. Blocked attachment names check
                 if (hasBlockedAttachmentNames(attachments)) {
                   event.completed({ 
                     allowEvent: false,
@@ -53,7 +51,6 @@ function onMessageSendHandler(event) {
                   return;
                 }
 
-                // 2. File size/token check
                 const selectedMode = localStorage.getItem("mail_mode") || "private";
                 const fd = new FormData();
                 fd.append("mode", JSON.stringify(selectedMode));
@@ -87,7 +84,10 @@ function onMessageSendHandler(event) {
                     const event = bodyResult.asyncContext;
                     let currentBody = bodyResult.value || "";
                     let appendedMessage = `<br/><br/><i>This message was sent under ${selectedMode} constraint.</i>`;
-                    if (!currentBody.includes(appendedMessage)) {
+                    let appendedMessage1 = "<br/><br/><i>This message was sent under private constraint.</i>";
+                    let appendedMessage2 = "<br/><br/><i>This message was sent under public constraint.</i>";
+                    let appendedMessage3 = "<br/><br/><i>This message was sent under protected constraint.</i>";
+                    if (!currentBody.includes(appendedMessage1) && !currentBody.includes(appendedMessage2) && !currentBody.includes(appendedMessage3)) {
                       let newBody = currentBody + appendedMessage;
                       item.body.setAsync(newBody, { coercionType: "html" }, function (setResult) {
                         if (setResult.status === Office.AsyncResultStatus.Succeeded) {
