@@ -1,20 +1,5 @@
 function runTaskpane2Logic(event) {
-    console.log("DEBUG 1a");
-    let token = "2";
-    const formdata = new FormData();
-    formdata.append("token", JSON.stringify(token));
-
-    fetch("http://127.0.0.1:5000/receive_token", {
-        method: "POST",
-        body: formdata
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log(" Response:", data);
-        event.completed();
-    })
-    .catch(error => {
-        console.error("Error:", error);
-        event.completed();
-    });
+    localStorage.setItem("mail_mode", "protected");
+    console.log("Mode set to protected");
+    event.completed();
 }
