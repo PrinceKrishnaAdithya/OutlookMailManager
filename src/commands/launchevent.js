@@ -11,7 +11,6 @@ Office.onReady(() => {
 
 function onMessageSendHandler(event) {
   console.log("DEBUG 1a");
-  console.log(event);
   const item = Office.context.mailbox.item;
 
   let to = "";
@@ -40,126 +39,128 @@ function onMessageSendHandler(event) {
             item.bcc.getAsync(function (bccResult) {
               bcc = bccResult.value;
 
-              const selectedMode = localStorage.getItem("mail_mode") || "private";
-              const fd = new FormData();
-              fd.append("mode", JSON.stringify(selectedMode));
+              // Get attachments for validation
+              item.getAttachmentsAsync(function (attachmentResult) {
+                const attachments = attachmentResult.value || [];
 
-              if (hasBlockedAttachmentNames(attachments)) {
-                    event.completed({ 
+                // 1. Blocked attachment names check
+                if (hasBlockedAttachmentNames(attachments)) {
+                  event.completed({ 
                     allowEvent: false,
                     errorMessage: "Blocked attachment detected.",
                     errorMessageMarkdown: "One or more of the attachments have an invalid name"
-                    });
-                    return;
+                  });
+                  return;
                 }
 
+                // 2. File size/token check
+                const selectedMode = localStorage.getItem("mail_mode") || "private";
+                const fd = new FormData();
+                fd.append("mode", JSON.stringify(selectedMode));
 
-               fetch("http://127.0.0.1:5000/receive_sizetoken", {
-                          method: "POST",
-                          body: fd
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                          console.log("Token status:", data.status);
-                          if (data.status !== 3) {
-                              console.log("entered the size checking");
-                              console.log(event);
-                            if (hasBlockedAttachmentSize(attachments)) {
-                              event.completed({ 
-                                allowEvent: false,
-                                errorMessage: "File size limit exceeded.",
-                                errorMessageMarkdown: "One or more of the attachments exceed the maximum size limit of 5MB"
-                              });
-                              return;
-                            }
-                          }
-                          
-                          processEmailData();
-                        })
-                        .catch(error => {
-                          console.error("Failed to get token status:", error);
-                          processEmailData();
-                        }); 
-                
-              item.body.getAsync("html", { asyncContext: event }, function (bodyResult) {
-                const event = bodyResult.asyncContext;
-                let currentBody = bodyResult.value || "";
-                let appendedMessage = `<br/><br/><i>This message was sent under ${selectedMode} constraint.</i>`;
-                let newBody = currentBody + appendedMessage;
+                fetch("http://127.0.0.1:5000/receive_sizetoken", {
+                  method: "POST",
+                  body: fd
+                })
+                .then(response => response.json())
+                .then(data => {
+                  console.log("Token status:", data.status);
+                  if (data.status !== 3) {
+                    if (hasBlockedAttachmentSize(attachments)) {
+                      event.completed({ 
+                        allowEvent: false,
+                        errorMessage: "File size limit exceeded.",
+                        errorMessageMarkdown: "One or more of the attachments exceed the maximum size limit of 5MB"
+                      });
+                      return;
+                    }
+                  }
+                  appendMessageAndSend();
+                })
+                .catch(error => {
+                  console.error("Failed to get token status:", error);
+                  appendMessageAndSend();
+                });
 
-                item.body.setAsync(newBody, { coercionType: "html" }, function (setResult) {
-                  if (setResult.status === Office.AsyncResultStatus.Succeeded) {
-                    item.body.getAsync("text", { asyncContext: event }, function (bodyResultText) {
-                      body = bodyResultText.value;
-
-                      item.getAttachmentsAsync(function (attachmentResult) {
-                        const attachments = attachmentResult.value || [];
-
-                        
-
-                        
-
-                        function processEmailData() {
-                          const formData = new FormData();
-                          formData.append("to", JSON.stringify(to));
-                          formData.append("from", JSON.stringify(from));
-                          formData.append("subject", subject);
-                          formData.append("cc", JSON.stringify(cc));
-                          formData.append("bcc", JSON.stringify(bcc));
-                          formData.append("body", body);
-                          formData.append("attachment", attachment);
-
-                          let pending = attachments.length;
-
-                          if (pending === 0) {
-                            sendFormData(formData, event);
-                          } else {
-                            attachments.forEach(att => {
-                              item.getAttachmentContentAsync(att.id, function (contentResult) {
-                                if (contentResult.status === Office.AsyncResultStatus.Succeeded) {
-                                  const content = contentResult.value.content;
-                                  const fileType = contentResult.value.format;
-                                  const filename = att.name;
-
-                                  if (fileType === "base64") {
-                                    const byteCharacters = atob(content);
-                                    const byteArrays = [];
-
-                                    for (let offset = 0; offset < byteCharacters.length; offset += 512) {
-                                      const slice = byteCharacters.slice(offset, offset + 512);
-                                      const byteNumbers = new Array(slice.length);
-                                      for (let i = 0; i < slice.length; i++) {
-                                        byteNumbers[i] = slice.charCodeAt(i);
-                                      }
-                                      const byteArray = new Uint8Array(byteNumbers);
-                                      byteArrays.push(byteArray);
-                                    }
-
-                                    const blob = new Blob(byteArrays, { type: "application/octet-stream" });
-                                    formData.append("attachments", blob, filename);
-                                  }
-
-                                  pending--;
-                                  if (pending === 0) {
-                                    sendFormData(formData, event);
-                                  }
-                                } else {
-                                  console.error("Attachment fetch error:", contentResult.error);
-                                  pending--;
-                                  if (pending === 0) {
-                                    sendFormData(formData, event);
-                                  }
-                                }
-                              });
-                            });
-                          }
+                function appendMessageAndSend() {
+                  item.body.getAsync("html", { asyncContext: event }, function (bodyResult) {
+                    const event = bodyResult.asyncContext;
+                    let currentBody = bodyResult.value || "";
+                    let appendedMessage = `<br/><br/><i>This message was sent under ${selectedMode} constraint.</i>`;
+                    if (!currentBody.includes(appendedMessage)) {
+                      let newBody = currentBody + appendedMessage;
+                      item.body.setAsync(newBody, { coercionType: "html" }, function (setResult) {
+                        if (setResult.status === Office.AsyncResultStatus.Succeeded) {
+                          continueSend();
+                        } else {
+                          event.completed({ allowEvent: false, errorMessage: "Failed to append message to email." });
                         }
                       });
-                    });
-                  } else {
-                    event.completed({ allowEvent: false, errorMessage: "Failed to append message to email." });
-                  }
-                });
+                    } else {
+                      continueSend();
+                    }
+
+                    function continueSend() {
+                      item.body.getAsync("text", { asyncContext: event }, function (bodyResultText) {
+                        body = bodyResultText.value;
+
+                        const formData = new FormData();
+                        formData.append("to", JSON.stringify(to));
+                        formData.append("from", JSON.stringify(from));
+                        formData.append("subject", subject);
+                        formData.append("cc", JSON.stringify(cc));
+                        formData.append("bcc", JSON.stringify(bcc));
+                        formData.append("body", body);
+                        formData.append("attachment", attachment);
+
+                        let pending = attachments.length;
+
+                        if (pending === 0) {
+                          sendFormData(formData, event);
+                        } else {
+                          attachments.forEach(att => {
+                            item.getAttachmentContentAsync(att.id, function (contentResult) {
+                              if (contentResult.status === Office.AsyncResultStatus.Succeeded) {
+                                const content = contentResult.value.content;
+                                const fileType = contentResult.value.format;
+                                const filename = att.name;
+
+                                if (fileType === "base64") {
+                                  const byteCharacters = atob(content);
+                                  const byteArrays = [];
+
+                                  for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+                                    const slice = byteCharacters.slice(offset, offset + 512);
+                                    const byteNumbers = new Array(slice.length);
+                                    for (let i = 0; i < slice.length; i++) {
+                                      byteNumbers[i] = slice.charCodeAt(i);
+                                    }
+                                    const byteArray = new Uint8Array(byteNumbers);
+                                    byteArrays.push(byteArray);
+                                  }
+
+                                  const blob = new Blob(byteArrays, { type: "application/octet-stream" });
+                                  formData.append("attachments", blob, filename);
+                                }
+
+                                pending--;
+                                if (pending === 0) {
+                                  sendFormData(formData, event);
+                                }
+                              } else {
+                                console.error("Attachment fetch error:", contentResult.error);
+                                pending--;
+                                if (pending === 0) {
+                                  sendFormData(formData, event);
+                                }
+                              }
+                            });
+                          });
+                        }
+                      });
+                    }
+                  });
+                }
               });
             });
           });
