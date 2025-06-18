@@ -69,7 +69,8 @@ function onMessageSendHandler(event) {
                         }
 
                         fetch("http://127.0.0.1:5000/receive_sizetoken", {
-                          method: "POST"
+                          method: "POST",
+                          body: fd
                         })
                         .then(response => response.json())
                         .then(data => {
