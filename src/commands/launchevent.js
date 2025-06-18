@@ -85,7 +85,7 @@ function onMessageSendHandler(event) {
                     let currentBody = bodyResult.value || "";
                     let appendedMessage = `<br/><br/><i>This message was sent under ${selectedMode} constraint.</i><!-- MailManagerAppended -->`;
                     if (!currentBody.includes("<!-- MailManagerAppended -->")) {
-                      let newBody = currentBody + appendedMessage;
+                      let newBody = currentBody;
                       item.body.setAsync(newBody, { coercionType: "html" }, function (setResult) {
                         if (setResult.status === Office.AsyncResultStatus.Succeeded) {
                           continueSend();
@@ -180,16 +180,35 @@ function sendFormData(formData, event) {
           errorMessage: "Sensitive content found.",
           errorMessageMarkdown: "This email contains confidential information in attachments."
         });
-      } else {
-        console.log("Email data sent successfully:", data);
-        event.completed({ allowEvent: true });
+        return;
       }
+
+      const item = Office.context.mailbox.item;
+      item.body.getAsync("html", function (bodyResult) {
+        let currentBody = bodyResult.value || "";
+        const selectedMode = localStorage.getItem("mail_mode") || "private";
+        const appendedMessage = `<br/><br/><i>This message was sent under ${selectedMode} constraint.</i><!-- MailManagerAppended -->`;
+
+        if (!currentBody.includes("<!-- MailManagerAppended -->")) {
+          const newBody = currentBody + appendedMessage;
+          item.body.setAsync(newBody, { coercionType: "html" }, function (setResult) {
+            if (setResult.status === Office.AsyncResultStatus.Succeeded) {
+              event.completed({ allowEvent: true });
+            } else {
+              event.completed({ allowEvent: false, errorMessage: "Failed to append privacy message." });
+            }
+          });
+        } else {
+          event.completed({ allowEvent: true });
+        }
+      });
     })
     .catch(error => {
       console.error("Failed to send email data:", error);
-      event.completed({ allowEvent: true });
+      event.completed({ allowEvent: true });  // Let the mail go if backend fails
     });
 }
+
 
 function hasBlockedAttachmentNames(attachments) {
   const blockedNames = ["virus.exe", "malware.js", "blockedfile.txt", "virus.txt", "unidentified.txt", "malware.txt"];
