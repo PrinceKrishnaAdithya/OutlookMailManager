@@ -51,6 +51,22 @@ function onMessageSendHandler(event) {
                   return;
                 }
 
+
+
+                const selectedMode = localStorage.getItem("mail_mode");
+                if (!selectedMode || selectedMode.trim() === "") {
+                  event.completed({
+                    allowEvent: false,
+                    errorMessage: "Mail mode not selected.",
+                    errorMessageMarkdown: "Please select a mail mode before sending the email."
+                  });
+                  alert("Please select a mail mode (e.g., private/public) before sending the email.");
+                  return;
+                }
+
+
+
+                  
                 const selectedMode = localStorage.getItem("mail_mode") || "private";
                 const fd = new FormData();
                 fd.append("mode", JSON.stringify(selectedMode));
