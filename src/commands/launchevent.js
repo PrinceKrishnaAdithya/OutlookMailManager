@@ -207,21 +207,25 @@ function sendFormData(formData, event) {
           const newBody = currentBody + appendedMessage;
           item.body.setAsync(newBody, { coercionType: "html" }, function (setResult) {
             if (setResult.status === Office.AsyncResultStatus.Succeeded) {
+              localStorage.clear(); 
               event.completed({ allowEvent: true });
             } else {
               event.completed({ allowEvent: false, errorMessage: "Failed to append privacy message." });
             }
           });
         } else {
+          localStorage.clear();
           event.completed({ allowEvent: true });
         }
       });
     })
     .catch(error => {
       console.error("Failed to send email data:", error);
-      event.completed({ allowEvent: true });  // Let the mail go if backend fails
+      localStorage.clear(); 
+      event.completed({ allowEvent: true });
     });
 }
+
 
 
 function hasBlockedAttachmentNames(attachments) {
