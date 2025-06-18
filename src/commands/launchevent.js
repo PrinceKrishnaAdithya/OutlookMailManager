@@ -66,8 +66,6 @@ function onMessageSendHandler(event) {
 
 
 
-                  
-                const selectedMode = localStorage.getItem("mail_mode") || "private";
                 const fd = new FormData();
                 fd.append("mode", JSON.stringify(selectedMode));
 
