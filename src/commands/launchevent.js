@@ -48,7 +48,7 @@ function onMessageSendHandler(event) {
               item.body.getAsync("html", { asyncContext: event }, function (bodyResult) {
                 const event = bodyResult.asyncContext;
                 let currentBody = bodyResult.value || "";
-                let appendedMessage = "<br/><br/><i>This message was sent in ${selectedMode}.</i>";
+                let appendedMessage = '<br/><br/><i>This message was sent in ${selectedMode}.</i>';
                 let newBody = currentBody + appendedMessage;
 
                 item.body.setAsync(newBody, { coercionType: "html" }, function (setResult) {
