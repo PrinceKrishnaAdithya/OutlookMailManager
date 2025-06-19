@@ -21,9 +21,6 @@ function onMessageSendHandler(event) {
   let body = "";
   let attachment = "";
 
-  item.getAttachmentsAsync(function (toAttachment) {
-    attachment = toAttachment.value;
-
     item.to.getAsync(function (toResult) {
       to = toResult.value;
 
@@ -51,8 +48,6 @@ function onMessageSendHandler(event) {
                   return;
                 }
 
-
-
                 const selectedMode = localStorage.getItem("mail_mode");
                 if (!selectedMode || selectedMode.trim() === "") {
                   event.completed({
@@ -63,8 +58,6 @@ function onMessageSendHandler(event) {
                   alert("Please select a mail mode (e.g., private/public) before sending the email.");
                   return;
                 }
-
-
 
                 const fd = new FormData();
                 fd.append("mode", JSON.stringify(selectedMode));
@@ -178,7 +171,6 @@ function onMessageSendHandler(event) {
         });
       });
     });
-  });
 }
 
 function sendFormData(formData, event) {
