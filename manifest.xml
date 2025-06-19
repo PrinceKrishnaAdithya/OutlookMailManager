@@ -6,10 +6,10 @@
            xsi:type="MailApp">
   <Id>bc555d50-2da9-46a3-bb18-c902d4ad8ae0</Id>
   <Version>1.0.0.0</Version>
-  <ProviderName>Contoso</ProviderName>
+  <ProviderName>ZohoSummer</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
   <DisplayName DefaultValue="Mail Manager"/>
-  <Description DefaultValue="A template to get started."/>
+  <Description DefaultValue="Various features to help you use outlook better"/>
   <IconUrl DefaultValue="https://mailapprepo.onrender.com/assets/mail_manager.png"/>
   <HighResolutionIconUrl DefaultValue="https://mailapprepo.onrender.com/assets/mail_manager.png"/>
   <SupportUrl DefaultValue="https://www.contoso.com/help"/>
