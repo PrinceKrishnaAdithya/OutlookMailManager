@@ -10,8 +10,8 @@
   <DefaultLocale>en-US</DefaultLocale>
   <DisplayName DefaultValue="Mail Manager"/>
   <Description DefaultValue="A template to get started."/>
-  <IconUrl DefaultValue="https://mailapprepo.onrender.com/assets/icon-64.png"/>
-  <HighResolutionIconUrl DefaultValue="https://mailapprepo.onrender.com/assets/icon-128.png"/>
+  <IconUrl DefaultValue="https://mailapprepo.onrender.com/assets/mail_manager.png"/>
+  <HighResolutionIconUrl DefaultValue="https://mailapprepo.onrender.com/assets/mail_manager.png"/>
   <SupportUrl DefaultValue="https://www.contoso.com/help"/>
   <AppDomains>
     <AppDomain>https://www.contoso.com</AppDomain>
@@ -91,7 +91,7 @@
                       <bt:Image size="80" resid="Icon.80x80" />
                     </Icon>
                       <Action xsi:type="ExecuteFunction">
-                        <FunctionName>function2</FunctionName>
+                        <FunctionName>runTaskpane2Logic</FunctionName>
                     </Action>
                   </Control>
 
@@ -130,9 +130,9 @@
 
       <Resources>
         <bt:Images>
-          <bt:Image id="Icon.16x16" DefaultValue="https://mailapprepo.onrender.com/assets/icon-16.png"/>
-          <bt:Image id="Icon.32x32" DefaultValue="https://mailapprepo.onrender.com/assets/icon-32.png"/>
-          <bt:Image id="Icon.80x80" DefaultValue="https://mailapprepo.onrender.com/assets/icon-80.png"/>
+          <bt:Image id="Icon.16x16" DefaultValue="https://mailapprepo.onrender.com/assets/mail_manager.png"/>
+          <bt:Image id="Icon.32x32" DefaultValue="https://mailapprepo.onrender.com/assets/mail_manager.png"/>
+          <bt:Image id="Icon.80x80" DefaultValue="https://mailapprepo.onrender.com/assets/mail_manager.png"/>
         </bt:Images>
         <bt:Urls>
           <bt:Url id="Commands.Url" DefaultValue="https://mailapprepo.onrender.com/src/commands/commands.html" />
