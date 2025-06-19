@@ -4,7 +4,6 @@ const cors = require("cors");
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Enable CORS for all routes
 app.use(cors());
 
 // Allow content to load in Outlook iframe
