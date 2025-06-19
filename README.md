@@ -56,7 +56,6 @@ Users can select from **three different modes** depending on their use-case. Eac
 2. Open **Microsoft Outlook**.
 3. Click on the **Apps (grid)** icon → **Get Add-ins**.
 
-   ![Get Add-ins](https://github.com/user-attachments/assets/83a309a4-df68-4b7c-b54b-b9e7309c6d47)
    ![image](https://github.com/user-attachments/assets/271d1845-8484-4d9c-98e9-0da56d26e1c1)
 
 
