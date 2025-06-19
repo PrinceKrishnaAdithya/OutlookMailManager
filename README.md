@@ -57,12 +57,14 @@ Users can select from **three different modes** depending on their use-case. Eac
 3. Click on the **Apps (grid)** icon → **Get Add-ins**.
 
    ![Get Add-ins](https://github.com/user-attachments/assets/83a309a4-df68-4b7c-b54b-b9e7309c6d47)
+   ![image](https://github.com/user-attachments/assets/271d1845-8484-4d9c-98e9-0da56d26e1c1)
 
-4. Go to **My Add-ins** → Scroll down → Click **+ Add a custom add-in** → Select `manifest.xml`.
+
+5. Go to **My Add-ins** → Scroll down → Click **+ Add a custom add-in** → Select `manifest.xml`.
 
    ![Upload Manifest](https://github.com/user-attachments/assets/9c3318e0-eead-4b23-b724-2d676d3941cf)
 
-5. You're all set! The add-in is now active.
+6. You're all set! The add-in is now active.
 
 ---
 
