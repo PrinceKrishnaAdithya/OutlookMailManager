@@ -1,44 +1,82 @@
-Description:-
-    This is a addin for microsoft outlook. The name of the addin is "Mail manager"
-    The addin provides the following features:-
-                  >Whenever you send an email, a json file containing information about the mail is stored in your local device.
-                  >Whenever you send an email, a copy of all the attachments are stored locally as well.
+# Mail Manager - Outlook Add-in
 
-Extra features:-
-    Some extra features are also provided in the form of mail modes and rule. There are 3 
-    rules that your email must follow in order for the addin to approve it and send.
-    The three rules are:-
-                  >Attachments names cannot be suspicious (malware.txt,virus.js etc).
-                  >Attachments cannot exceed 5mb.
-                  >Attachments cannot contain confidential information (checks for keywords like "secret" or "confidential" in the txt files).
+**Mail Manager** is a custom Microsoft Outlook add-in that enhances your email-sending experience with advanced file handling, rule enforcement, and customizable security modes.
 
-Mail modes:-
-    These conditions might be too constricting for some users who might want to bypass them, 
-    for example some users would not want their attachment content to be analysed or they might 
-    want to send attachments larger than 5mb. So for these reasons users are provided with 3 
-    mail modes (Private,Protected,Public) to bypass them.
-    ![image](https://github.com/user-attachments/assets/433c26f3-56be-4dd1-89d5-94d5c86d9d77)
+---
 
-    Private mode: In private mode, all 3 conditions are enforced normally.
-    Protected mode: In protected mode, the attachment content is not checked, only the size and name are checked.
-    Public mode: In public mode, only the attachment name is checked. The size and content are not checked
+## Features
 
+### Automatic Local Backup
+- A JSON file with email metadata (To, Subject, Body, Timestamp, etc.) is saved locally each time you send an email.
+- All attachments are also saved to your local device for backup and auditing.
 
-How to run:-
-    All the necessary js,html files are deployed on render so you only need the manifest file to add the addin to your account and the python exe file so that the files can be saved to the local storagE.
-    However if your account already has the addin then you need only the python exe file. 
-    In order to add the addin to your account for the first time, 
-    1.download the manifest.xml file, 
-    2.then go to microsft outlook.
-    3.click on the application icon and then click on get addins
-    ![image](https://github.com/user-attachments/assets/83a309a4-df68-4b7c-b54b-b9e7309c6d47)
-    ![image](https://github.com/user-attachments/assets/e5103cb6-ee85-48a2-a560-2d5a55a5b185)
+---
 
-    4.click on my addins and then add the addin by clicking on the manifest.xml file
-    ![image](https://github.com/user-attachments/assets/9c3318e0-eead-4b23-b724-2d676d3941cf)
-    ![image](https://github.com/user-attachments/assets/9a039128-b00b-41eb-afb8-f248586c8159)
+## Email Rule Enforcement
 
-    5. the addin has now been successfully added.
-    
+Before an email is sent, the following rules are validated (depending on selected mail mode):
 
-    
+1. **Suspicious Attachment Name Check**  
+   Blocks files with names like `malware.txt`, `virus.js`, etc.
+
+2. **Attachment Size Limit**  
+   Ensures no single attachment exceeds **5MB**.
+
+3. **Confidential Content Scan**  
+   Scans `.txt` files for sensitive keywords such as `"secret"` or `"confidential"`.
+
+---
+
+## Mail Modes
+
+Users can select from **three different modes** depending on their use-case. Each mode determines which validation rules apply:
+
+| Mode         | Attachment Name | Attachment Size | Attachment Content |
+|--------------|------------------|------------------|----------------------|
+| **Private**   | Checked         | Checked         | Checked             |
+| **Protected** | Checked         | Checked         | Not Checked         |
+| **Public**    | Checked         | Not Checked     | Not Checked         |
+
+> Private mode is the most secure; Public mode is the most lenient.
+
+---
+
+## How to Install
+
+### Prerequisites
+- Outlook (Web/Desktop)
+- Manifest file (`manifest.xml`)
+- Python executable for local file storage
+
+---
+
+### First-Time Setup
+
+1. **Download** the `manifest.xml` file.
+2. Open **Microsoft Outlook**.
+3. Click on the **Apps (grid)** icon → **Get Add-ins**.
+
+   ![Get Add-ins](https://github.com/user-attachments/assets/83a309a4-df68-4b7c-b54b-b9e7309c6d47)
+
+4. Go to **My Add-ins** → Scroll down → Click **+ Add a custom add-in** → Select `manifest.xml`.
+
+   ![Upload Manifest](https://github.com/user-attachments/assets/9c3318e0-eead-4b23-b724-2d676d3941cf)
+
+5. You're all set! The add-in is now active.
+
+---
+
+### Already Installed?
+
+If the add-in is already added to your account, just run the provided **Python executable** to enable local saving functionality.
+
+---
+
+## Tech Stack
+
+- **Frontend:** HTML, CSS, JavaScript (Hosted on Render)
+- **Backend:** Python (Flask, packaged as `.exe` for local execution)
+- **APIs:** Office.js (Outlook Add-in framework)
+
+---
+
