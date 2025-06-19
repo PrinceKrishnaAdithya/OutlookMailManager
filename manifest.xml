@@ -24,6 +24,7 @@
       <Set Name="Mailbox" MinVersion="1.1"/>
     </Sets>
   </Requirements>
+           <!--
   <FormSettings>
     <Form xsi:type="ItemRead">
       <DesktopSettings>
@@ -32,6 +33,7 @@
       </DesktopSettings>
     </Form>
   </FormSettings>
+           -->
   <Permissions>ReadWriteItem</Permissions>
   <Rule xsi:type="RuleCollection" Mode="Or">
     <Rule xsi:type="ItemIs" ItemType="Message" FormType="Read"/>
@@ -61,11 +63,11 @@
                 <Group id="msgComposeGroup">
                   <Label resid="GroupLabel" />
 
-                  <!--Taskpane Button-->
+                  <!--Private Button-->
                   <Control xsi:type="Button" id="msgComposeOpenPaneButton">
-                    <Label resid="TaskpaneButton1.Label" />
+                    <Label resid="Button1.Label" />
                     <Supertip>
-                      <Title resid="TaskpaneButton1.Label" />
+                      <Title resid="Button1.Label" />
                       <Description resid="TaskpaneButton.Tooltip" />
                     </Supertip>
                     <Icon>
@@ -78,11 +80,11 @@
                     </Action>
                   </Control>
 
-                  <!-- Action Button -->
+                  <!-- Protected Button -->
                   <Control xsi:type="Button" id="msgComposeOpenPaneButton2">
-                    <Label resid="TaskpaneButton2.Label" />
+                    <Label resid="Button2.Label" />
                     <Supertip>
-                      <Title resid="TaskpaneButton2.Label" />
+                      <Title resid="Button2.Label" />
                       <Description resid="TaskpaneButton.Tooltip" />
                     </Supertip>
                     <Icon>
@@ -95,12 +97,12 @@
                     </Action>
                   </Control>
 
-                  <!--New Button-->
+                  <!--Public Button-->
                   <Control xsi:type="Button" id="msgComposeOpenPaneButton3">
-                    <Label resid="TaskpaneButton3.Label" />
+                    <Label resid="Button3.Label" />
                     <Supertip>
-                      <Title resid="TaskpaneButton3.Label" />
-                      <Description resid="TaskpaneButton.Tooltip" />
+                      <Title resid="Button3.Label" />
+                      <Description resid="ModeButton.Tooltip" />
                     </Supertip>
                     <Icon>
                       <bt:Image size="16" resid="Icon.16x16" />
@@ -136,22 +138,17 @@
         </bt:Images>
         <bt:Urls>
           <bt:Url id="Commands.Url" DefaultValue="https://mailapprepo.onrender.com/src/commands/commands.html" />
-          <bt:Url id="Taskpane.Url" DefaultValue="https://mailapprepo.onrender.com/src/taskpane/taskpane.html" />
-          <bt:Url id="Taskpane2.Url" DefaultValue="https://mailapprepo.onrender.com/src/taskpane/taskpane2.html" />
-          <bt:Url id="Taskpane3.Url" DefaultValue="https://mailapprepo.onrender.com/src/taskpane/taskpane3.html" />
           <bt:Url id="WebViewRuntime.Url" DefaultValue="https://mailapprepo.onrender.com/src/commands/commands.html" />
           <bt:Url id="JSRuntime.Url" DefaultValue="https://mailapprepo.onrender.com/src/commands/launchevent.js" />
         </bt:Urls>
         <bt:ShortStrings>
-          <bt:String id="GroupLabel" DefaultValue="Contoso Add-in"/>
-          <bt:String id="TaskpaneButton1.Label" DefaultValue="Private"/>
-          <bt:String id="TaskpaneButton2.Label" DefaultValue="Protected"/>
-          <bt:String id="TaskpaneButton3.Label" DefaultValue="Public"/>
+          <bt:String id="GroupLabel" DefaultValue="ZohoSummer addin"/>
+          <bt:String id="Button1.Label" DefaultValue="Private"/>
+          <bt:String id="Button2.Label" DefaultValue="Protected"/>
+          <bt:String id="Button3.Label" DefaultValue="Public"/>
         </bt:ShortStrings>
         <bt:LongStrings>
-          <bt:String id="TaskpaneButton.Tooltip" DefaultValue="Opens a pane to provide additional functionality or information."/>
-          <bt:String id="ActionButton.Tooltip" DefaultValue="Perform an action when clicked."/>
-          <bt:String id="MyNewButton.Tooltip" DefaultValue="This is your new custom button!"/>
+          <bt:String id="ModeButton.Tooltip" DefaultValue="Select the mode you would like to send the mail in"/>
         </bt:LongStrings>
       </Resources>
     </VersionOverrides>
