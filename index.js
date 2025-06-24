@@ -1,3 +1,4 @@
+//The index files help us to manage the file hierarchy while exposing these files to other packages.
 const express = require("express");
 const path = require("path");
 const cors = require("cors");
