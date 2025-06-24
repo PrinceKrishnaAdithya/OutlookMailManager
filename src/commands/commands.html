@@ -5,9 +5,13 @@
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   
   <!-- Office JavaScript API -->
+   <!--This line is important for the outlook to identify our addin or else it will reject-->
   <script type="text/javascript" src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
 
   <!-- Load your event handler script -->
+   <!--Here we are loading all the necessary files which the addin will use-->
+   <!--Each taskpane corresponds to a button(private,protected and public)-->
+   <!--launchevent is the file that is called immediately when you click send mail-->>
   <script type="text/javascript" src="launchevent.js"></script>
   <script type="text/javascript" src="taskpane.js"></script>
   <script type="text/javascript" src="taskpane2.js"></script>
